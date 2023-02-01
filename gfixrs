@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+
+FIXUPHASH=$1
+echo "FIXUPHASH" $FIXUPHASH
+ROOTHASH=$(git rev-parse ${FIXUPHASH}^)
+echo "ROOTHASH" $ROOTHASH
+BRANCHNAME=$(git rev-parse --abbrev-ref HEAD)
+echo "BRANCHNAME" $BRANCHNAME
+git commit --fixup $FIXUPHASH --no-verify
+NEWFIXUP=$(git rev-parse HEAD)
+echo "NEWFIXUP" $NEWFIXUP
+TEMPBRANCH="${BRANCHNAME}_rebasetemp"
+echo "TEMPBRANCH" $TEMPBRANCH
+PARENTHASH=$(git rev-parse ${NEWFIXUP}^)
+echo "PARENTHASH" $PARENTHASH
+
+git checkout $FIXUPHASH
+git branch $TEMPBRANCH
+git checkout $TEMPBRANCH
+git cherry-pick $NEWFIXUP
+git cherry-pick "${FIXUPHASH}..${PARENTHASH}"
+git checkout $BRANCHNAME
+git reset --hard $TEMPBRANCH
+git branch --delete $TEMPBRANCH
+GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash $ROOTHASH
