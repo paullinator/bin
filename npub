@@ -1,0 +1,11 @@
+set -e
+
+VER=$(echo "console.log(JSON.parse(require('fs').readFileSync('./package.json', { encoding: 'utf8' })).version)" | node)
+VER="v${VER}"
+echo $VER
+git add .
+git commit -m "${VER}" --no-verify
+git tag ${VER}
+npm publish
+git push origin ${VER}
+git push
