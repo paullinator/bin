@@ -1,0 +1,2 @@
+#!/bin/sh
+echo 'c = require("crypto"); console.log(c.randomBytes(16).toString("hex"))' | node
